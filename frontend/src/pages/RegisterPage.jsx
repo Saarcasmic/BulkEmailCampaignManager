@@ -5,6 +5,7 @@ import * as yup from 'yup';
 import { TextField, Button, Typography, Box, Paper, Stack } from '@mui/material';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
+import Header from '../components/home/Header';
 
 const schema = yup.object().shape({
   name: yup.string().required(),
@@ -32,7 +33,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#181A20', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className=" absolute top-0 left-0 w-full">
+            <Header fromHome={false}/>
+      </div>
       <Paper sx={{ p: 4, borderRadius: 3, bgcolor: '#23242b', minWidth: 350, boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)' }}>
         <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700, mb: 2, textAlign: 'center' }}>Register</Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
