@@ -13,8 +13,8 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 const allowedOrigins = [
-  'https://bulk-email-campaign-manager.vercel.app/',
-  'https://bulk-email-campaign-manager-git-main-dharmawarriors-projects.vercel.app/'
+  'https://bulk-email-campaign-manager.vercel.app',
+  'https://bulk-email-campaign-manager-git-main-dharmawarriors-projects.vercel.app'
 ];
 
 app.use(cors({
