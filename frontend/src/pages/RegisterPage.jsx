@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { TextField, Button, Typography, Box, Paper, Stack } from '@mui/material';
-import axios from 'axios';
+import api from '../api';
 import { useNavigate } from 'react-router-dom';
 
 const schema = yup.object().shape({
@@ -20,7 +20,7 @@ export default function RegisterPage() {
 
   const onSubmit = async (data) => {
     try {
-      await axios.post('/api/auth/register', data);
+      await api.post('/auth/register', data);
       if (localStorage.getItem('token')) {
         navigate('/users');
       } else {

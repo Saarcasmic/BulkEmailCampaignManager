@@ -3,7 +3,7 @@ import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, TextField,
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import MenuItem from '@mui/material/MenuItem';
-import axios from '../api/axios';
+import api from '../api';
 
 const roles = ['admin', 'user'];
 
@@ -15,7 +15,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState('');
 
   const fetchUsers = async () => {
-    const res = await axios.get('/users');
+    const res = await api.get('/users');
     setUsers(res.data);
   };
   useEffect(() => { fetchUsers(); }, []);
@@ -29,9 +29,9 @@ export default function UsersPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (editing) {
-      await axios.put(`/users/${editing._id}`, form);
+      await api.put(`/users/${editing._id}`, form);
     } else {
-      await axios.post('/auth/register', form);
+      await api.post('/auth/register', form);
     }
     setOpen(false);
     setEditing(null);
@@ -39,7 +39,7 @@ export default function UsersPage() {
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`/users/${id}`);
+    await api.delete(`/users/${id}`);
     fetchUsers();
   };
 

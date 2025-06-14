@@ -3,7 +3,7 @@ import { Button, Typography, Box, Dialog, DialogTitle, DialogContent, TextField,
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
-import axios from '../api/axios';
+import api from '../api';
 import Form from '@rjsf/mui';
 import validator from '@rjsf/validator-ajv8';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -52,12 +52,12 @@ export default function CampaignsPage() {
   const [search, setSearch] = useState('');
 
   const fetchCampaigns = async () => {
-    const res = await axios.get('/campaigns');
+    const res = await api.get('/campaigns');
     setCampaigns(res.data);
   };
 
   const fetchTemplates = async () => {
-    const res = await axios.get('/templates');
+    const res = await api.get('/templates');
     setTemplates(res.data);
   };
 
@@ -105,9 +105,9 @@ export default function CampaignsPage() {
       payload.scheduledTimezone = scheduledTimezone;
     }
     if (editing) {
-      await axios.put(`/campaigns/${editing._id}`, payload);
+      await api.put(`/campaigns/${editing._id}`, payload);
     } else {
-      await axios.post('/campaigns', payload);
+      await api.post('/campaigns', payload);
     }
     setOpen(false);
     setEditing(null);
@@ -115,7 +115,7 @@ export default function CampaignsPage() {
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`/campaigns/${id}`);
+    await api.delete(`/campaigns/${id}`);
     fetchCampaigns();
   };
 

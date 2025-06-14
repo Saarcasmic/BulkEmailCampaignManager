@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from '../api/axios';
+import api from '../api';
 import { Typography, Box, Paper, Table, TableHead, TableRow, TableCell, TableBody, Divider, Stack } from '@mui/material';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { io } from 'socket.io-client';
@@ -14,11 +14,11 @@ export default function AnalyticsPage() {
   const [campaign, setCampaign] = useState(null);
 
   useEffect(() => {
-    axios.get(`/analytics/${campaignId}`).then(res => {
+    api.get(`/analytics/${campaignId}`).then(res => {
       setDevices(Object.entries(res.data.devices).map(([name, value]) => ({ name, value })));
       setGeos(Object.entries(res.data.geos).map(([country, value]) => ({ country, value })));
     });
-    axios.get(`/campaigns`).then(res => {
+    api.get(`/campaigns`).then(res => {
       setCampaign(res.data.find(c => c._id === campaignId));
     });
     // Socket.IO real-time updates

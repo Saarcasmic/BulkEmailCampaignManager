@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Box, Typography, Paper, LinearProgress, Chip, Stack, Divider, Grid } from '@mui/material';
-import axios from '../api/axios';
+import api from '../api';
 import { io } from 'socket.io-client';
 
 const METRICS = [
@@ -25,7 +25,7 @@ export default function RealTimeUpdatesPage() {
     const socketUrl = getSocketUrl();
     let socket = io(socketUrl, { transports: ['websocket'] });
     socketRef.current = socket;
-    axios.get('/campaigns').then(res => {
+    api.get('/campaigns').then(res => {
       setCampaigns(res.data);
       // Initialize progress state
       const initial = {};

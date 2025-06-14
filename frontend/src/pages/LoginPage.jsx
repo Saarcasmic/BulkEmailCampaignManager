@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { TextField, Button, Typography, Box, Paper, Stack } from '@mui/material';
-import axios from 'axios';
+import api from '../api';
 import { useNavigate } from 'react-router-dom';
 
 const schema = yup.object().shape({
@@ -19,7 +19,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await axios.post('/api/auth/login', data);
+      const res = await api.post('/auth/login', data);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       navigate('/campaigns');

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, TextField, Paper, Stack, Divider } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
-import axios from '../api/axios';
+import api from '../api';
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState([]);
@@ -12,7 +12,7 @@ export default function TemplatesPage() {
   const [search, setSearch] = useState('');
 
   const fetchTemplates = async () => {
-    const res = await axios.get('/templates');
+    const res = await api.get('/templates');
     setTemplates(res.data);
   };
   useEffect(() => { fetchTemplates(); }, []);
@@ -26,9 +26,9 @@ export default function TemplatesPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (editing) {
-      await axios.put(`/templates/${editing._id}`, form);
+      await api.put(`/templates/${editing._id}`, form);
     } else {
-      await axios.post('/templates', form);
+      await api.post('/templates', form);
     }
     setOpen(false);
     setEditing(null);
@@ -36,7 +36,7 @@ export default function TemplatesPage() {
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`/templates/${id}`);
+    await api.delete(`/templates/${id}`);
     fetchTemplates();
   };
 

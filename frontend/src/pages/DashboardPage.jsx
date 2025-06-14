@@ -3,7 +3,7 @@ import { Box, Typography, Button, Card, CardContent, Chip, Grid, Avatar, InputBa
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from '../api/axios';
+import api from '../api';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { io } from 'socket.io-client';
 
@@ -17,14 +17,14 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (campaignId) {
-      axios.get(`/campaigns`).then(res => {
+      api.get(`/campaigns`).then(res => {
         const found = res.data.find(c => c._id === campaignId);
         setCampaign(found);
         setMetrics(found?.metrics || { sent: 0, delivered: 0, opened: 0, clicked: 0 });
       });
     } else {
-      axios.get('/campaigns').then(res => setCampaigns(res.data));
-      axios.get('/campaigns').then(res => {
+      api.get('/campaigns').then(res => setCampaigns(res.data));
+      api.get('/campaigns').then(res => {
         const all = res.data.map(c => c.metrics || {});
         setMetrics({
           sent: all.reduce((a, b) => a + (b.sent || 0), 0),
