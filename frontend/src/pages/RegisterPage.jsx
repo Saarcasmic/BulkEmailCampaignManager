@@ -23,7 +23,7 @@ export default function RegisterPage() {
     try {
       await api.post('/auth/register', data);
       if (localStorage.getItem('token')) {
-        navigate('/users');
+        navigate('/campaigns');
       } else {
         navigate('/login');
       }
