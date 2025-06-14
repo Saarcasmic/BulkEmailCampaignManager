@@ -52,12 +52,12 @@ export default function CampaignsPage() {
   const [search, setSearch] = useState('');
 
   const fetchCampaigns = async () => {
-    const res = await api.get('/campaigns');
+    const res = await api.get('/auth/campaigns');
     setCampaigns(res.data);
   };
 
   const fetchTemplates = async () => {
-    const res = await api.get('/templates');
+    const res = await api.get('/auth/templates');
     setTemplates(res.data);
   };
 
