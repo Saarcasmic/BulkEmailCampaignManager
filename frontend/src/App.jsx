@@ -12,6 +12,7 @@ import UsersPage from './pages/UsersPage';
 import TemplatesPage from './pages/TemplatesPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import RealTimeUpdatesPage from './pages/RealTimeUpdatesPage';
+import Home from './pages/Home';
 
 const theme = createTheme({
   typography: {
@@ -51,6 +52,7 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route element={<PrivateRoute />}>
