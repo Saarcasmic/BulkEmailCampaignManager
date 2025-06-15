@@ -15,7 +15,9 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'https://bulk-email-campaign-manager.vercel.app',
   'https://bulk-email-campaign-manager-git-main-dharmawarriors-projects.vercel.app',
-  'https://bulk-email-campaign-manager-2q7kvj582-dharmawarriors-projects.vercel.app'
+  'https://bulk-email-campaign-manager-2q7kvj582-dharmawarriors-projects.vercel.app',
+  'http://localhost:5173', 
+  'http://localhost:5000'
 ];
 
 app.use(cors({

@@ -58,10 +58,7 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route element={<Layout />}>
               <Route path="/campaigns" element={<CampaignsPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/dashboard/:campaignId" element={<DashboardPage />} />
               <Route path="/templates" element={<TemplatesPage />} />
-              <Route path="/analytics/:campaignId" element={<AnalyticsPage />} />
               <Route path="/analytics" element={<RealTimeUpdatesPage />} />
               <Route element={<AdminRoute />}>
                 <Route path="/users" element={<UsersPage />} />

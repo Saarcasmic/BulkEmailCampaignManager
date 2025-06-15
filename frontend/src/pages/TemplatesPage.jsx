@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, TextField, Paper, Stack, Divider } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
+import { motion } from 'framer-motion';
+import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Dialog, DialogTitle, DialogContent, TextField, Button, Box, Typography } from '@mui/material';
 import api from '../api';
 
 export default function TemplatesPage() {
@@ -13,7 +13,12 @@ export default function TemplatesPage() {
 
   const fetchTemplates = async () => {
     const res = await api.get('/templates');
-    setTemplates(res.data);
+    if (Array.isArray(res.data)) {
+      setTemplates(res.data);
+    } else {
+      setTemplates([]);
+      console.error("Expected templates to be an array:");
+    }
   };
   useEffect(() => { fetchTemplates(); }, []);
 
@@ -46,56 +51,99 @@ export default function TemplatesPage() {
   );
 
   return (
-    <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: '#181A20', p: { xs: 2, md: 4 } }}>
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700, letterSpacing: 1 }}>Templates</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          sx={{ bgcolor: '#2563eb', borderRadius: 2, fontWeight: 600, px: 3, py: 1.2, fontSize: 16 }}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Templates</h1>
+          <p className="text-gray-600 mt-1">Manage your email templates</p>
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2"
           onClick={() => handleOpen(null)}
         >
-          Add Template
-        </Button>
-      </Box>
+          <Plus className="h-5 w-5" />
+          <span>Add Template</span>
+        </motion.button>
+      </div>
+
       {/* Search Bar */}
-      <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#23242b', borderRadius: 2, px: 2, py: 1, mb: 3, maxWidth: 400 }}>
-        <SearchIcon sx={{ color: '#888', mr: 1 }} />
-        <TextField
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <input
+          type="text"
           placeholder="Search templates..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          size="small"
-          variant="standard"
-          sx={{ flex: 1, input: { color: '#fff' }, '& .MuiInput-underline:before': { borderBottomColor: '#444' }, '& .MuiInput-underline:after': { borderBottomColor: '#2563eb' } }}
-          InputProps={{ disableUnderline: true }}
+          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
         />
-      </Box>
+      </div>
+
       {/* Templates List */}
-      <Stack spacing={3}>
-        {filteredTemplates.map((template) => (
-          <Paper key={template._id} sx={{ bgcolor: '#23242b', borderRadius: 3, p: 3, boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box>
-              <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>{template.name}</Typography>
-              <Typography variant="body2" sx={{ color: '#aaa' }}>{template.subject}</Typography>
-              <Typography variant="caption" sx={{ color: '#888' }}>Created: {template.createdAt ? new Date(template.createdAt).toLocaleString() : '-'}</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Button size="small" variant="outlined" sx={{ color: '#fff', borderColor: '#444', ml: 1 }} onClick={() => handleOpen(template)}>Edit</Button>
-              <Button size="small" variant="outlined" sx={{ color: '#fff', borderColor: '#444', ml: 1 }} onClick={() => handleDelete(template._id)}>Delete</Button>
-            </Box>
-          </Paper>
-        ))}
-        {filteredTemplates.length === 0 && (
-          <Typography sx={{ color: '#888', textAlign: 'center', py: 4 }}>No templates found.</Typography>
-        )}
-      </Stack>
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Name</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Subject</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Created</th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredTemplates.map((template, index) => (
+                <motion.tr
+                  key={template._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <td className="px-6 py-4 font-medium text-gray-900">{template.name}</td>
+                  <td className="px-6 py-4 text-gray-700">{template.subject}</td>
+                  <td className="px-6 py-4 text-gray-600">{template.createdAt ? new Date(template.createdAt).toLocaleDateString() : '-'}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center space-x-2">
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                        title="Edit"
+                        onClick={() => handleOpen(template)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                        title="Delete"
+                        onClick={() => handleDelete(template._id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </motion.button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+              {filteredTemplates.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="text-center text-gray-500 py-8">No templates found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Dialog for Add/Edit Template */}
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{editing ? 'Edit Template' : 'Add Template'}</DialogTitle>
         <DialogContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <TextField
               label="Name"
               value={form.name}
@@ -126,6 +174,6 @@ export default function TemplatesPage() {
           </form>
         </DialogContent>
       </Dialog>
-    </Box>
+    </div>
   );
 } 

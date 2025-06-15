@@ -49,10 +49,13 @@ export default function UsersPage() {
   );
 
   return (
-    <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: '#181A20', p: { xs: 2, md: 4 } }}>
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700, letterSpacing: 1 }}>Users</Typography>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Users</h1>
+          <p className="text-gray-600 mt-1">Manage users and roles</p>
+        </div>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -61,40 +64,40 @@ export default function UsersPage() {
         >
           Add User
         </Button>
-      </Box>
+      </div>
       {/* Search Bar */}
-      <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#23242b', borderRadius: 2, px: 2, py: 1, mb: 3, maxWidth: 400 }}>
-        <SearchIcon sx={{ color: '#888', mr: 1 }} />
-        <TextField
+      <div className="relative max-w-md">
+        <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
           placeholder="Search users..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          size="small"
-          variant="standard"
-          sx={{ flex: 1, input: { color: '#fff' }, '& .MuiInput-underline:before': { borderBottomColor: '#444' }, '& .MuiInput-underline:after': { borderBottomColor: '#2563eb' } }}
-          InputProps={{ disableUnderline: true }}
+          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
         />
-      </Box>
+      </div>
       {/* Users List */}
-      <Stack spacing={3}>
-        {filteredUsers.map((user) => (
-          <Paper key={user._id} sx={{ bgcolor: '#23242b', borderRadius: 3, p: 3, boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box>
-              <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>{user.name}</Typography>
-              <Typography variant="body2" sx={{ color: '#aaa' }}>{user.email}</Typography>
-              <Typography variant="caption" sx={{ color: '#888' }}>Created: {user.createdAt ? new Date(user.createdAt).toLocaleString() : '-'}</Typography>
-              <Chip label={user.role} color={user.role === 'admin' ? 'secondary' : 'default'} size="small" sx={{ mt: 1, fontWeight: 600, bgcolor: user.role === 'admin' ? '#2563eb' : '#888', color: '#fff' }} />
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Button size="small" variant="outlined" sx={{ color: '#fff', borderColor: '#444', ml: 1 }} onClick={() => handleOpen(user)}>Edit</Button>
-              <Button size="small" variant="outlined" sx={{ color: '#fff', borderColor: '#444', ml: 1 }} onClick={() => handleDelete(user._id)}>Delete</Button>
-            </Box>
-          </Paper>
-        ))}
-        {filteredUsers.length === 0 && (
-          <Typography sx={{ color: '#888', textAlign: 'center', py: 4 }}>No users found.</Typography>
-        )}
-      </Stack>
+      <div>
+        <Stack spacing={3}>
+          {filteredUsers.map((user) => (
+            <Paper key={user._id} sx={{ bgcolor: '#23242b', borderRadius: 3, p: 3, boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>{user.name}</Typography>
+                <Typography variant="body2" sx={{ color: '#aaa' }}>{user.email}</Typography>
+                <Typography variant="caption" sx={{ color: '#888' }}>Created: {user.createdAt ? new Date(user.createdAt).toLocaleString() : '-'}</Typography>
+                <Chip label={user.role} color={user.role === 'admin' ? 'secondary' : 'default'} size="small" sx={{ ml: 2, fontWeight: 600, bgcolor: user.role === 'admin' ? '#2563eb' : '#888', color: '#fff' }} />
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Button size="small" variant="outlined" sx={{ color: '#fff', borderColor: '#444', ml: 1 }} onClick={() => handleOpen(user)}>Edit</Button>
+                <Button size="small" variant="outlined" sx={{ color: '#fff', borderColor: '#444', ml: 1 }} onClick={() => handleDelete(user._id)}>Delete</Button>
+              </Box>
+            </Paper>
+          ))}
+          {filteredUsers.length === 0 && (
+            <Typography sx={{ color: '#888', textAlign: 'center', py: 4 }}>No users found.</Typography>
+          )}
+        </Stack>
+      </div>
       {/* Dialog for Add/Edit User */}
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle>{editing ? 'Edit User' : 'Add User'}</DialogTitle>
@@ -141,6 +144,6 @@ export default function UsersPage() {
           </form>
         </DialogContent>
       </Dialog>
-    </Box>
+    </div>
   );
 } 

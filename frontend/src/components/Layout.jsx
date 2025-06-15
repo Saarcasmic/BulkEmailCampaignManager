@@ -1,21 +1,7 @@
 import React from 'react';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, Box, Button, Avatar, InputBase, Typography, Divider } from '@mui/material';
-import CampaignIcon from '@mui/icons-material/Email';
-import TemplateIcon from '@mui/icons-material/Description';
-import AnalyticsIcon from '@mui/icons-material/BarChart';
-import UsersIcon from '@mui/icons-material/People';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import SearchIcon from '@mui/icons-material/Search';
-import { useNavigate, Outlet, useLocation } from 'react-router-dom';
-
-const drawerWidth = 260;
-
-const navItems = [
-  { text: 'Campaigns', icon: <CampaignIcon />, path: '/campaigns' },
-  { text: 'Templates', icon: <TemplateIcon />, path: '/templates' },
-  { text: 'Real Time Updates', icon: <AnalyticsIcon />, path: '/analytics' },
-  // Users tab will be conditionally rendered below
-];
+import { motion } from 'framer-motion';
+import { Mail, Send, FileText, BarChart3, LogOut, User as UserIcon, Users as UsersIcon } from 'lucide-react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 function getUser() {
   try {
@@ -26,112 +12,117 @@ function getUser() {
   }
 }
 
+const menuItems = [
+  { id: 'campaigns', label: 'Campaigns', icon: Send, path: '/campaigns' },
+  { id: 'templates', label: 'Templates', icon: FileText, path: '/templates' },
+  { id: 'metrics', label: 'Real Time Metrics', icon: BarChart3, path: '/analytics' },
+];
+
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = getUser();
+
+  // Determine active tab based on current route
+  const getActiveTab = () => {
+    if (location.pathname.startsWith('/campaigns')) return 'campaigns';
+    if (location.pathname.startsWith('/templates')) return 'templates';
+    if (location.pathname.startsWith('/analytics')) return 'metrics';
+    if (location.pathname.startsWith('/users')) return 'users';
+    return '';
+  };
+  const activeTab = getActiveTab();
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/login');
   };
+
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#181A20' }}>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-            bgcolor: '#181A20',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '24px',
-            m: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            boxShadow: '0 8px 32px 0 rgba(0,0,0,0.18)',
-            p: 0,
-          },
-        }}
-        PaperProps={{ elevation: 4 }}
-      >
-        {/* User card at top */}
-        <Box sx={{ width: '100%', px: 3, pt: 4, pb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#23242b', borderRadius: 2, p: 2, mb: 2 }}>
-            <Avatar sx={{ width: 40, height: 40, mr: 1 }} src={user?.avatar || ''}>
-              {user?.name?.[0] || 'U'}
-            </Avatar>
-            <Box>
-              <Typography variant="caption" sx={{ color: '#aaa' }}>Welcome,</Typography>
-              <Typography variant="body2" sx={{ color: '#fff', fontWeight: 700 }}>{user?.name || 'User'}</Typography>
-            </Box>
-          </Box>
-        </Box>
+    <div className="min-h-screen flex bg-[#f8fafc]">
+      {/* Sidebar */}
+      <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl border-r border-gray-200 z-50 flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-2 mb-6">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-xl shadow-lg">
+              <Mail className="h-6 w-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              EchoMail
+            </span>
+          </div>
+          {/* User Profile */}
+          <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <UserIcon className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <div className="font-semibold text-gray-900">{user?.name || 'User'}</div>
+              <div className="text-sm text-gray-500">{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</div>
+            </div>
+          </div>
+        </div>
         {/* Navigation */}
-        <List sx={{ width: '100%', flex: 1 }}>
-          {navItems.map((item) => {
-            // Custom logic for active tab
-            let isActive = false;
-            if (item.path === '/campaigns') {
-              isActive = location.pathname.startsWith('/campaigns') ||
-                /^\/analytics\/[\w-]+$/.test(location.pathname) ||
-                /^\/dashboard\/[\w-]+$/.test(location.pathname);
-            } else if (item.path === '/analytics') {
-              isActive = location.pathname === '/analytics';
-            } else {
-              isActive = location.pathname.startsWith(item.path);
-            }
-            return (
-              <ListItem
-                button
-                key={item.text}
-                onClick={() => navigate(item.path)}
-                sx={{
-                  borderRadius: 2,
-                  mx: 2,
-                  mb: 1,
-                  py: 1.2,
-                  background: isActive
-                    ? 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)'
-                    : 'transparent',
-                  color: isActive ? '#fff' : '#bdbdbd',
-                  fontWeight: 600,
-                  fontSize: 17,
-                  transition: 'background 0.2s, color 0.2s',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    background: 'rgba(37,99,235,0.18)',
-                    color: '#fff',
-                    cursor: 'pointer',
-                  },
-                }}
+        <nav className="flex-1 p-4">
+          <div className="space-y-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <motion.button
+                  key={item.id}
+                  onClick={() => navigate(item.path)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span className="font-medium">{item.label}</span>
+                </motion.button>
+              );
+            })}
+            {/* Conditionally render Users tab for admin */}
+            {user && user.role === 'admin' && (
+              <motion.button
+                key="users"
+                onClick={() => navigate('/users')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                  activeTab === 'users'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
               >
-                <ListItemIcon sx={{ color: 'inherit', minWidth: 40, fontSize: 26 }}>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} primaryTypographyProps={{ fontWeight: 700, fontSize: 17 }} />
-              </ListItem>
-            );
-          })}
-          {user && user.role === 'admin' && (
-            <ListItem button key="Users" onClick={() => navigate('/users')} sx={{ borderRadius: 2, mx: 2, mb: 1, py: 1.2, cursor: 'pointer', transition: 'background 0.2s, color 0.2s', '&:hover': { background: 'rgba(37,99,235,0.18)', color: '#fff', cursor: 'pointer' } }}>
-              <ListItemIcon sx={{ color: 'inherit', minWidth: 40, fontSize: 26 }}><UsersIcon /></ListItemIcon>
-              <ListItemText primary="Users" primaryTypographyProps={{ fontWeight: 700, fontSize: 17 }} />
-            </ListItem>
-          )}
-        </List>
-        {/* Logout at bottom */}
-        <Box sx={{ width: '100%', px: 3, pb: 3, pt: 2 }}>
-          <Button variant="contained" color="secondary" size="large" onClick={handleLogout} fullWidth sx={{ borderRadius: 2, fontWeight: 600, mt: 2, bgcolor: '#2563eb' }}>
-            Logout
-          </Button>
-        </Box>
-      </Drawer>
-      <Box component="main" sx={{ flex: 1, width: 'auto', bgcolor: '#181A20' }}>
+                <UsersIcon className="h-5 w-5" />
+                <span className="font-medium">Users</span>
+              </motion.button>
+            )}
+          </div>
+        </nav>
+        {/* Logout Button */}
+        <div className="p-4 border-t border-gray-200 mt-auto">
+          <motion.button
+            onClick={handleLogout}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200"
+          >
+            <LogOut className="h-5 w-5" />
+            <span className="font-medium">Logout</span>
+          </motion.button>
+        </div>
+      </div>
+      {/* Main Content */}
+      <div className="flex-1 ml-64 min-h-screen bg-[#f8fafc]">
         <Outlet />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 } 
