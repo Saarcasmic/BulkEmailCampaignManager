@@ -4,7 +4,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 async function sendSingleEmail(to, subject, content, campaignId) {
   const msg = {
     to,
-    from: process.env.SENDGRID_FROM || 'no-reply@example.com',
+    from: 'saaragrawal_it21a10_27@dtu.ac.in',
     subject,
     html: content,
     customArgs: { campaignId },
@@ -15,7 +15,7 @@ async function sendSingleEmail(to, subject, content, campaignId) {
 async function sendBulkEmail(recipients, subject, content, campaignId) {
   const messages = recipients.map((to) => ({
     to,
-    from: process.env.SENDGRID_FROM || 'no-reply@example.com',
+    from: 'saaragrawal_it21a10_27@dtu.ac.in',
     subject,
     html: content,
     customArgs: { campaignId },
