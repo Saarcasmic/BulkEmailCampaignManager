@@ -4,13 +4,11 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import CampaignsPage from './pages/CampaignsPage';
-import DashboardPage from './pages/DashboardPage';
 import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 import UsersPage from './pages/UsersPage';
 import TemplatesPage from './pages/TemplatesPage';
-import AnalyticsPage from './pages/AnalyticsPage';
 import RealTimeUpdatesPage from './pages/RealTimeUpdatesPage';
 import Home from './pages/Home';
 
