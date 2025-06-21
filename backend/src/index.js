@@ -57,6 +57,11 @@ app.get('/', (req, res) => {
   res.send('Bulk Email Campaign Manager API');
 });
 
+// Ping route for warm-up
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

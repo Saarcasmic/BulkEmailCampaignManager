@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -45,6 +46,14 @@ const theme = createTheme({
 });
 
 function App() {
+  useEffect(() => {
+    // Send a "warm-up" request to the backend to prevent cold starts on Render
+    fetch(`${import.meta.env.VITE_API_URL}/ping`).catch(err => {
+      console.log('Server is likely asleep, waking it up...', err.message);
+    });
+  }, []);
+
+  
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
