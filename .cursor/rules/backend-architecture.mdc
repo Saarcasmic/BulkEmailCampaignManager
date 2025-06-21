@@ -1,0 +1,25 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Backend Architecture
+
+The backend is a Node.js application using the Express framework. It follows a structure similar to the Model-View-Controller (MVC) pattern.
+
+## Key Directories & Files:
+
+-   **Entry Point**: The main server entry point is [`BulkEmailCampaignManager/backend/src/index.js`](mdc:BulkEmailCampaignManager/backend/src/index.js). It sets up the Express server, connects to MongoDB, and initializes Socket.IO.
+-   **Models**: [`BulkEmailCampaignManager/backend/src/models/`](mdc:BulkEmailCampaignManager/backend/src/models) contains Mongoose schemas for the database.
+    -   [`User.js`](mdc:BulkEmailCampaignManager/backend/src/models/User.js): User schema with roles and password hashing.
+    -   [`Campaign.js`](mdc:BulkEmailCampaignManager/backend/src/models/Campaign.js): Campaign schema, including metrics and analytics.
+    -   [`Template.js`](mdc:BulkEmailCampaignManager/backend/src/models/Template.js): Email template schema.
+-   **Routes**: [`BulkEmailCampaignManager/backend/src/routes/`](mdc:BulkEmailCampaignManager/backend/src/routes) defines the API endpoints. The main router is [`api.js`](mdc:BulkEmailCampaignManager/backend/src/routes/api.js), which delegates to feature-specific route files.
+-   **Controllers**: [`BulkEmailCampaignManager/backend/src/controllers/`](mdc:BulkEmailCampaignManager/backend/src/controllers) holds the business logic for each route.
+-   **Middleware**: [`BulkEmailCampaignManager/backend/src/middleware/`](mdc:BulkEmailCampaignManager/backend/src/middleware) contains middleware functions, primarily for authentication ([`auth.js`](mdc:BulkEmailCampaignManager/backend/src/middleware/auth.js)).
+-   **Utilities**: [`BulkEmailCampaignManager/backend/src/utils/`](mdc:BulkEmailCampaignManager/backend/src/utils) contains helper modules.
+    -   [`sendEmail.js`](mdc:BulkEmailCampaignManager/backend/src/utils/sendEmail.js): Integrates with SendGrid for sending emails.
+    -   [`scheduler.js`](mdc:BulkEmailCampaignManager/backend/src/utils/scheduler.js): Uses `node-cron` to schedule campaigns.
+
+See [feature-map.mdc](mdc:.cursor/rules/feature-map.mdc) for how these files relate to specific application features.
+

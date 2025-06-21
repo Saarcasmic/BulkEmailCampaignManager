@@ -1,0 +1,33 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Feature Map
+
+This rule maps key application features to the files that implement them.
+
+### Authentication & User Management
+-   **Backend Logic**: [`authController.js`](mdc:BulkEmailCampaignManager/backend/src/controllers/authController.js), [`usersController.js`](mdc:BulkEmailCampaignManager/backend/src/controllers/usersController.js)
+-   **Data Model**: [`User.js`](mdc:BulkEmailCampaignManager/backend/src/models/User.js)
+-   **Middleware**: [`auth.js`](mdc:BulkEmailCampaignManager/backend/src/middleware/auth.js)
+-   **Frontend UI**: [`LoginPage.jsx`](mdc:BulkEmailCampaignManager/frontend/src/pages/LoginPage.jsx), [`RegisterPage.jsx`](mdc:BulkEmailCampaignManager/frontend/src/pages/RegisterPage.jsx), [`UsersPage.jsx`](mdc:BulkEmailCampaignManager/frontend/src/pages/UsersPage.jsx)
+-   **Route Protection**: [`PrivateRoute.jsx`](mdc:BulkEmailCampaignManager/frontend/src/components/PrivateRoute.jsx), [`AdminRoute.jsx`](mdc:BulkEmailCampaignManager/frontend/src/components/AdminRoute.jsx)
+
+### Campaign Management
+-   **Backend Logic**: [`campaignController.js`](mdc:BulkEmailCampaignManager/backend/src/controllers/campaignController.js)
+-   **Data Model**: [`Campaign.js`](mdc:BulkEmailCampaignManager/backend/src/models/Campaign.js)
+-   **Frontend UI**: [`CampaignsPage.jsx`](mdc:BulkEmailCampaignManager/frontend/src/pages/CampaignsPage.jsx) uses `@rjsf/mui` for forms.
+
+### Email Sending & Scheduling
+-   **Sending Logic**: [`sendEmail.js`](mdc:BulkEmailCampaignManager/backend/src/utils/sendEmail.js) (using SendGrid)
+-   **Scheduling Logic**: [`scheduler.js`](mdc:BulkEmailCampaignManager/backend/src/utils/scheduler.js) (using `node-cron`)
+
+### Analytics & Real-Time Updates
+-   **Webhook Handler**: [`sendgridWebhookController.js`](mdc:BulkEmailCampaignManager/backend/src/controllers/sendgridWebhookController.js) processes incoming data from SendGrid.
+-   **Real-time Server**: [`index.js`](mdc:BulkEmailCampaignManager/backend/src/index.js) manages Socket.IO connections.
+-   **Real-time Client**: [`RealTimeUpdatesPage.jsx`](mdc:BulkEmailCampaignManager/frontend/src/pages/RealTimeUpdatesPage.jsx) listens for `campaignUpdate` events.
+-   **Analytics API**: [`analyticsController.js`](mdc:BulkEmailCampaignManager/backend/src/controllers/analyticsController.js)
+-   **Metrics API**: [`metricsController.js`](mdc:BulkEmailCampaignManager/backend/src/controllers/metricsController.js)
+-   **Analytics UI**: [`AnalyticsModal.jsx`](mdc:BulkEmailCampaignManager/frontend/src/components/AnalyticsModal.jsx), [`MetricsModal.jsx`](mdc:BulkEmailCampaignManager/frontend/src/components/MetricsModal.jsx)
+

@@ -1,0 +1,25 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Frontend Architecture
+
+The frontend is a single-page application built with React and Vite. It uses Material-UI for components and TailwindCSS for styling.
+
+## Key Directories & Files:
+
+-   **Entry Point**: The application's entry point is [`BulkEmailCampaignManager/frontend/src/main.jsx`](mdc:BulkEmailCampaignManager/frontend/src/main.jsx).
+-   **Main Component**: [`BulkEmailCampaignManager/frontend/src/App.jsx`](mdc:BulkEmailCampaignManager/frontend/src/App.jsx) sets up the theme and the main router (`react-router-dom`).
+-   **Pages**: [`BulkEmailCampaignManager/frontend/src/pages/`](mdc:BulkEmailCampaignManager/frontend/src/pages) contains the top-level components for each route/page.
+    -   [`CampaignsPage.jsx`](mdc:BulkEmailCampaignManager/frontend/src/pages/CampaignsPage.jsx): The main dashboard for managing campaigns.
+    -   [`LoginPage.jsx`](mdc:BulkEmailCampaignManager/frontend/src/pages/LoginPage.jsx) & [`RegisterPage.jsx`](mdc:BulkEmailCampaignManager/frontend/src/pages/RegisterPage.jsx): User authentication pages.
+    -   [`RealTimeUpdatesPage.jsx`](mdc:BulkEmailCampaignManager/frontend/src/pages/RealTimeUpdatesPage.jsx): Displays live campaign metrics.
+-   **Components**: [`BulkEmailCampaignManager/frontend/src/components/`](mdc:BulkEmailCampaignManager/frontend/src/components) contains reusable UI components.
+    -   [`Layout.jsx`](mdc:BulkEmailCampaignManager/frontend/src/components/Layout.jsx): The main application layout with sidebar navigation for authenticated users.
+    -   [`PrivateRoute.jsx`](mdc:BulkEmailCampaignManager/frontend/src/components/PrivateRoute.jsx) & [`AdminRoute.jsx`](mdc:BulkEmailCampaignManager/frontend/src/components/AdminRoute.jsx): Handle route protection.
+-   **API Layer**: [`BulkEmailCampaignManager/frontend/src/api.js`](mdc:BulkEmailCampaignManager/frontend/src/api.js) configures an Axios instance with interceptors to attach the JWT token to requests.
+-   **Dependencies**: Key frontend dependencies are listed in [`BulkEmailCampaignManager/frontend/package.json`](mdc:BulkEmailCampaignManager/frontend/package.json).
+
+See [feature-map.mdc](mdc:.cursor/rules/feature-map.mdc) for how these files relate to specific application features.
+

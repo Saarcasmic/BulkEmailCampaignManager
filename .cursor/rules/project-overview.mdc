@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Overview
+
+This is a full-stack Bulk Email Campaign Manager application, structured as a monorepo.
+
+-   `BulkEmailCampaignManager/backend/`: Contains the Node.js/Express backend server. See [backend-architecture.mdc](mdc:.cursor/rules/backend-architecture.mdc) for details.
+-   `BulkEmailCampaignManager/frontend/`: Contains the React (Vite) frontend application. See [frontend-architecture.mdc](mdc:.cursor/rules/frontend-architecture.mdc) for details.
+-   `BulkEmailCampaignManager/README.md`: [Project README](mdc:BulkEmailCampaignManager/README.md) with setup instructions and features.
+
+The application allows users to create, manage, and track bulk email campaigns with real-time analytics.
+
