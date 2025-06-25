@@ -1,9 +1,12 @@
+import morgan from 'morgan';
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
+
 
 const app = express();
 const server = http.createServer(app);
@@ -46,6 +49,8 @@ io.on('connection', (socket) => {
     socket.join(`campaign_${campaignId}`);
   });
 });
+
+app.use(morgan('dev'));
 
 // Routes
 app.use('/api', require('./routes/api'));
