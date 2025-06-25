@@ -17,7 +17,8 @@ exports.register = async (req, res) => {
     const user = new User({ email, password, name, role: assignedRole });
     await user.save();
     const token = jwt.sign({ id: user._id, email: user.email, name: user.name, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.status(201).json({ token, user: { id: user._id, email: user.email, name: user.name, role: user.role } });
+    const userResponse = { id: user._id, email: user.email, name: user.name, role: user.role, isSenderVerified: user.isSenderVerified, subscription: user.subscription };
+    res.status(201).json({ token, user: userResponse });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -31,7 +32,20 @@ exports.login = async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
     const token = jwt.sign({ id: user._id, email: user.email, name: user.name, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token, user: { id: user._id, email: user.email, name: user.name, role: user.role } });
+    const userResponse = { id: user._id, email: user.email, name: user.name, role: user.role, isSenderVerified: user.isSenderVerified, subscription: user.subscription };
+    res.json({ token, user: userResponse });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+exports.getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

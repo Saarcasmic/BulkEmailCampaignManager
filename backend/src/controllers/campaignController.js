@@ -1,4 +1,5 @@
 const Campaign = require('../models/Campaign');
+const User = require('../models/User');
 const { sendBulkEmail } = require('../utils/sendEmail');
 const { scheduleCampaign, cancelCampaignSchedule } = require('../utils/scheduler');
 
@@ -21,17 +22,28 @@ exports.getById = async (req, res) => {
   }
 };
 
-async function sendAndMarkSent(campaign, user) {
+async function sendAndMarkSent(campaign, userToken) {
+  const user = await User.findById(userToken.id);
+  if (!user) {
+    throw new Error('User not found.');
+  }
+
+  if (!user.isSenderVerified) {
+    throw new Error('Sender email is not verified. Please go to your profile to verify.');
+  }
+  
   try {
-    if (user && user.email === 'saarway1234@gmail.com') {
-      await sendBulkEmail(campaign.recipients, campaign.subject, campaign.content, campaign._id.toString());
-    }
+    await sendBulkEmail(campaign.recipients, campaign.subject, campaign.content, campaign._id.toString(), user.email);
+    
     campaign.status = 'sent';
     campaign.sentAt = new Date();
     campaign.metrics.sent = campaign.recipients.length;
     await campaign.save();
   } catch (err) {
-    // Optionally log error
+    console.error(`Failed to send campaign ${campaign._id}:`, err);
+    campaign.status = 'draft';
+    await campaign.save();
+    throw err;
   }
 }
 
@@ -49,7 +61,6 @@ exports.create = async (req, res) => {
       createdBy: req.user.id,
     });
     await campaign.save();
-    // Schedule or send immediately
     if (scheduledAt && new Date(scheduledAt) > new Date()) {
       campaign.status = 'scheduled';
       await campaign.save();
@@ -59,7 +70,7 @@ exports.create = async (req, res) => {
     }
     res.status(201).json(campaign);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: err.message || 'Server error', error: err.message });
   }
 };
 
@@ -72,9 +83,7 @@ exports.update = async (req, res) => {
     if (scheduledAt) campaign.scheduledAt = scheduledAt;
     if (scheduledTimezone) campaign.scheduledTimezone = scheduledTimezone;
     await campaign.save();
-    // Cancel previous schedule if any
     cancelCampaignSchedule(campaign._id);
-    // Schedule or send immediately
     if (campaign.scheduledAt && new Date(campaign.scheduledAt) > new Date()) {
       campaign.status = 'scheduled';
       await campaign.save();
@@ -84,7 +93,7 @@ exports.update = async (req, res) => {
     }
     res.json(campaign);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: err.message || 'Server error', error: err.message });
   }
 };
 

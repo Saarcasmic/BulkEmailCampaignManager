@@ -6,6 +6,7 @@ import { Mail, Lock, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
+import toast from 'react-hot-toast';
 
 const schema = yup.object().shape({
   name: yup.string().required('Full name is required'),
@@ -33,13 +34,18 @@ export default function RegisterPage() {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       if (localStorage.getItem('token')) {
-        navigate('/campaigns');
+        navigate('/profile');
       } else {
         navigate('/login');
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Registration failed');
+      toast.error(err.response?.data?.message || 'Registration failed');
     }
+  };
+
+  // Show validation errors as toast on blur
+  const handleBlur = (field) => {
+    if (errors[field]) toast.error(errors[field].message);
   };
 
   return (
@@ -114,10 +120,8 @@ export default function RegisterPage() {
                   placeholder="Enter your full name"
                   required
                   disabled={isSubmitting}
+                  onBlur={() => handleBlur('name')}
                 />
-                {errors.name && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-red-500">{errors.name.message}</span>
-                )}
               </div>
             </div>
 
@@ -137,10 +141,8 @@ export default function RegisterPage() {
                   placeholder="Enter your email"
                   required
                   disabled={isSubmitting}
+                  onBlur={() => handleBlur('email')}
                 />
-                {errors.email && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-red-500">{errors.email.message}</span>
-                )}
               </div>
             </div>
 
@@ -151,7 +153,7 @@ export default function RegisterPage() {
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type={showPassword ? "text" : "password"}
                     id="password"
@@ -161,6 +163,7 @@ export default function RegisterPage() {
                     placeholder="Create a password"
                     required
                     disabled={isSubmitting}
+                    onBlur={() => handleBlur('password')}
                   />
                   <span
                     onClick={() => setShowPassword((v) => !v)}
@@ -168,9 +171,6 @@ export default function RegisterPage() {
                   >
                     {showPassword ? <EyeOff className="h-5 w-5 text-black" /> : <Eye className="h-5 w-5 text-black" />}
                   </span>
-                  {errors.password && (
-                    <span className="absolute right-12 top-1/2 -translate-y-1/2 text-xs text-red-500">{errors.password.message}</span>
-                  )}
                 </div>
               </div>
               <div>
@@ -178,7 +178,7 @@ export default function RegisterPage() {
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     id="confirmPassword"
@@ -188,6 +188,7 @@ export default function RegisterPage() {
                     placeholder="Confirm your password"
                     required
                     disabled={isSubmitting}
+                    onBlur={() => handleBlur('confirmPassword')}
                   />
                   <span
                     onClick={() => setShowConfirmPassword((v) => !v)}
@@ -195,35 +196,23 @@ export default function RegisterPage() {
                   >
                     {showConfirmPassword ? <EyeOff className="h-5 w-5 text-black" /> : <Eye className="h-5 w-5 text-black" />}
                   </span>
-                  {errors.confirmPassword && (
-                    <span className="absolute right-12 top-1/2 -translate-y-1/2 text-xs text-red-500">{errors.confirmPassword.message}</span>
-                  )}
                 </div>
               </div>
             </div>
 
-            {/* Terms & Conditions */}
-            <div className="flex items-start">
+            {/* Terms Checkbox */}
+            <div className="flex items-center">
               <input
                 type="checkbox"
                 id="terms"
                 {...register('terms')}
-                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 mt-1"
+                className="mr-2"
                 disabled={isSubmitting}
+                onBlur={() => handleBlur('terms')}
               />
-              <span className="ml-2 text-xs md:text-sm text-slate-600">
-                I agree to the{' '}
-                <a href="#" className="text-blue-600 hover:text-blue-700 transition-colors">
-                  Terms of Service
-                </a>{' '}
-                and{' '}
-                <a href="#" className="text-blue-600 hover:text-blue-700 transition-colors">
-                  Privacy Policy
-                </a>
-              </span>
-              {errors.terms && (
-                <span className="ml-2 text-xs text-red-500">{errors.terms.message}</span>
-              )}
+              <label htmlFor="terms" className="text-xs md:text-sm text-slate-700">
+                I agree to the <a href="#" className="text-blue-600 hover:underline">terms and conditions</a>
+              </label>
             </div>
 
             {/* Create Account Button */}

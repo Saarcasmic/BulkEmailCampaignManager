@@ -12,10 +12,10 @@ async function sendSingleEmail(to, subject, content, campaignId) {
   return sgMail.send(msg);
 }
 
-async function sendBulkEmail(recipients, subject, content, campaignId) {
+async function sendBulkEmail(recipients, subject, content, campaignId, fromEmail) {
   const messages = recipients.map((to) => ({
     to,
-    from: 'saaragrawal_it21a10_27@dtu.ac.in',
+    from: fromEmail || 'saaragrawal_it21a10_27@dtu.ac.in',
     subject,
     html: content,
     customArgs: { campaignId },

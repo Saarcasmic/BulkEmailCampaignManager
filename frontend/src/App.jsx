@@ -12,6 +12,11 @@ import UsersPage from './pages/UsersPage';
 import TemplatesPage from './pages/TemplatesPage';
 import RealTimeUpdatesPage from './pages/RealTimeUpdatesPage';
 import Home from './pages/Home';
+import ProfilePage from './pages/ProfilePage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentFailurePage from './pages/PaymentFailurePage';
+import { Toaster } from 'react-hot-toast';
+import { SubscriptionProvider } from './components/SubscriptionContext';
 
 const theme = createTheme({
   typography: {
@@ -56,25 +61,31 @@ function App() {
   
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route element={<PrivateRoute />}>
-            <Route element={<Layout />}>
-              <Route path="/campaigns" element={<CampaignsPage />} />
-              <Route path="/templates" element={<TemplatesPage />} />
-              <Route path="/analytics" element={<RealTimeUpdatesPage />} />
-              <Route element={<AdminRoute />}>
-                <Route path="/users" element={<UsersPage />} />
+      <SubscriptionProvider>
+        <Toaster position="top-center" reverseOrder={false} />
+        <CssBaseline />
+        <Router>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
+            <Route path="/payment/failure" element={<PaymentFailurePage />} />
+            <Route element={<PrivateRoute />}>
+              <Route element={<Layout />}>
+                <Route path="/campaigns" element={<CampaignsPage />} />
+                <Route path="/templates" element={<TemplatesPage />} />
+                <Route path="/analytics" element={<RealTimeUpdatesPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route element={<AdminRoute />}>
+                  <Route path="/users" element={<UsersPage />} />
+                </Route>
               </Route>
             </Route>
-          </Route>
-          <Route path="*" element={<Navigate to="/campaigns" />} />
-        </Routes>
-      </Router>
+            <Route path="*" element={<Navigate to="/campaigns" />} />
+          </Routes>
+        </Router>
+      </SubscriptionProvider>
     </ThemeProvider>
   );
 }

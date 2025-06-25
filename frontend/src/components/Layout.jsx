@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Send, FileText, BarChart3, LogOut, User as UserIcon, Users as UsersIcon } from 'lucide-react';
+import { Mail, Send, FileText, BarChart3, LogOut, User as UserIcon, Users as UsersIcon, Settings } from 'lucide-react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 function getUser() {
@@ -16,6 +16,7 @@ const menuItems = [
   { id: 'campaigns', label: 'Campaigns', icon: Send, path: '/campaigns' },
   { id: 'templates', label: 'Templates', icon: FileText, path: '/templates' },
   { id: 'metrics', label: 'Real Time Metrics', icon: BarChart3, path: '/analytics' },
+  { id: 'profile', label: 'Profile', icon: Settings, path: '/profile' },
 ];
 
 export default function Layout() {
@@ -29,6 +30,7 @@ export default function Layout() {
     if (location.pathname.startsWith('/templates')) return 'templates';
     if (location.pathname.startsWith('/analytics')) return 'metrics';
     if (location.pathname.startsWith('/users')) return 'users';
+    if (location.pathname.startsWith('/profile')) return 'profile';
     return '';
   };
   const activeTab = getActiveTab();

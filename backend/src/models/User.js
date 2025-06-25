@@ -7,6 +7,18 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   role: { type: String, enum: ['admin', 'user'], default: 'user' },
+  isSenderVerified: { type: Boolean, default: false },
+  sendgridSenderId: { type: String },
+  subscription: {
+    status: { type: String, enum: ['none', 'trial', 'active', 'expired', 'cancelled'], default: 'none' },
+    plan: { type: String },
+    trialEndsAt: { type: Date },
+    subscribedAt: { type: Date },
+    subscriptionEndsAt: { type: Date },
+    razorpayPaymentId: { type: String },
+    razorpayOrderId: { type: String },
+    razorpaySignature: { type: String },
+  },
 });
 
 userSchema.pre('save', async function (next) {

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Search, Edit, Trash2, BarChart3, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button, Typography, Box, Dialog, DialogTitle, DialogContent, TextField, Paper, InputAdornment, Chip, Fab, Stack, Divider } from '@mui/material';
+import { Plus, Search, Edit, Trash2, BarChart3, Eye, ChevronLeft, ChevronRight, File, Send } from 'lucide-react';
+import { Button, Typography, Box, Dialog, DialogTitle, DialogContent, TextField, Paper, InputAdornment, Chip, Fab, Stack, Divider, DialogActions } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import Form from '@rjsf/mui';
@@ -12,15 +12,17 @@ import { DateTime } from 'luxon';
 import MenuItem from '@mui/material/MenuItem';
 import MetricsModal from '../components/MetricsModal';
 import AnalyticsModal from '../components/AnalyticsModal';
+import toast from 'react-hot-toast';
+import { useSubscription } from '../components/SubscriptionContext';
 
 const campaignSchema = {
   title: 'Campaign',
   type: 'object',
   required: ['name', 'recipients', 'subject', 'content'],
   properties: {
-    name: { type: 'string', title: 'Name' },
+    name: { type: 'string', title: 'Campaign Name' },
     description: { type: 'string', title: 'Description' },
-    recipients: { type: 'array', title: 'Recipients', items: { type: 'string', format: 'email' } },
+    recipients: { type: 'string', title: 'Recipients' },
     subject: { type: 'string', title: 'Subject' },
     content: { type: 'string', title: 'Content', format: 'textarea' },
     scheduledAt: { type: 'string', title: 'Scheduled At', format: 'date-time' },
@@ -43,6 +45,92 @@ const commonTimeZones = [
 
 const itemsPerPage = 5;
 
+// Custom Widgets for RJSF Form
+const CustomTextWidget = (props) => {
+  const { id, placeholder, required, readonly, disabled, label, value, onChange, onBlur, onFocus, schema } = props;
+  return (
+    <div className="space-y-2">
+      <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#374151' }}>
+        {schema.title || label}
+      </Typography>
+      <TextField
+        id={id}
+        fullWidth
+        variant="outlined"
+        placeholder={placeholder}
+        required={required}
+        disabled={disabled || readonly}
+        value={value || ''}
+        onChange={(event) => onChange(event.target.value === '' ? undefined : event.target.value)}
+        onBlur={onBlur && ((event) => onBlur(id, event.target.value))}
+        onFocus={onFocus && ((event) => onFocus(id, event.target.value))}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '12px',
+            backgroundColor: '#f8fafc',
+            '&.Mui-focused fieldset': {
+              borderColor: '#2563eb',
+              borderWidth: '2px',
+            },
+          },
+        }}
+      />
+    </div>
+  );
+};
+
+const CustomTextareaWidget = (props) => {
+  const { id, placeholder, required, readonly, disabled, label, value, onChange, onBlur, onFocus, schema } = props;
+  return (
+    <div className="space-y-2">
+      <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#374151' }}>
+        {schema.title || label}
+      </Typography>
+      <TextField
+        id={id}
+        fullWidth
+        multiline
+        rows={5}
+        variant="outlined"
+        placeholder={placeholder}
+        required={required}
+        disabled={disabled || readonly}
+        value={value || ''}
+        onChange={(event) => onChange(event.target.value === '' ? undefined : event.target.value)}
+        onBlur={onBlur && ((event) => onBlur(id, event.target.value))}
+        onFocus={onFocus && ((event) => onFocus(id, event.target.value))}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '12px',
+            backgroundColor: '#f8fafc',
+            '&.Mui-focused fieldset': {
+              borderColor: '#2563eb',
+              borderWidth: '2px',
+            },
+          },
+        }}
+      />
+    </div>
+  );
+};
+
+const widgets = {
+  TextWidget: CustomTextWidget,
+  TextareaWidget: CustomTextareaWidget,
+};
+
+const uiSchema = {
+  name: { 'ui:placeholder': '🚀 Summer Sale Campaign' },
+  description: { 'ui:placeholder': '📝 A short, catchy description for your campaign.' },
+  recipients: { 'ui:placeholder': 'user1@example.com, user2@example.com, ...' },
+  subject: { 'ui:placeholder': '☀️ Your engaging email subject line' },
+  content: { 'ui:placeholder': '<h1>Your amazing HTML content here...</h1><p>Get 50% off!</p>' },
+  scheduledAt: { 'ui:widget': 'hidden' },
+  scheduledTimezone: { 'ui:widget': 'hidden' },
+};
+
+const CustomTitleField = () => <></>;
+
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
   const [open, setOpen] = useState(false);
@@ -59,7 +147,10 @@ export default function CampaignsPage() {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
-  
+  const [user, setUser] = useState(null);
+  const formRef = useRef(null);
+  const { status: subscriptionStatus, loading: subscriptionLoading } = useSubscription();
+
   const fetchCampaigns = async () => {
     const res = await api.get('/campaigns');
     if (Array.isArray(res.data)) {
@@ -81,32 +172,78 @@ export default function CampaignsPage() {
   };
 
   useEffect(() => {
-    fetchCampaigns();
-    fetchTemplates();
-  }, []);
+    const fetchInitialData = async () => {
+      try {
+        const userRes = await api.get('/auth/me');
+        setUser(userRes.data);
+        localStorage.setItem('user', JSON.stringify(userRes.data));
+        await fetchCampaigns();
+        await fetchTemplates();
+      } catch (error) {
+        toast.error('Failed to load user data. Please log in again.');
+        navigate('/login');
+      }
+    };
+    fetchInitialData();
+  }, [navigate]);
 
   const filteredCampaigns = campaigns.filter(campaign =>
     campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (campaign.status && campaign.status.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleOpen = (edit) => {
-    setEditing(edit);
-    setOpen(true);
-    fetchTemplates();
-    if (edit) {
-      setFormData({ ...edit });
-      if (edit.scheduledAt && edit.scheduledTimezone) {
-        setScheduledAt(DateTime.fromISO(edit.scheduledAt, { zone: edit.scheduledTimezone }));
-        setScheduledTimezone(edit.scheduledTimezone);
+  const handleOpen = async (edit) => {
+    if (!user) {
+      toast.error('User data is still loading, please wait a moment.');
+      return;
+    }
+  
+    if (!user.isSenderVerified) {
+      toast.error('Please verify your sender email in the Profile section before creating a campaign.');
+      navigate('/profile');
+      return;
+    }
+  
+    const toastId = toast.loading('Checking verification status...');
+  
+    try {
+      const { data } = await api.get('/verification/status');
+      if (data.isVerified) {
+        toast.dismiss(toastId);
+        setEditing(edit);
+        setOpen(true);
+        fetchTemplates(); // Refresh templates list
+        if (edit) {
+          const loadedFormData = { ...edit };
+          if (Array.isArray(loadedFormData.recipients)) {
+            loadedFormData.recipients = loadedFormData.recipients.join(', ');
+          }
+          setFormData(loadedFormData);
+
+          if (edit.scheduledAt && edit.scheduledTimezone) {
+            setScheduledAt(DateTime.fromISO(edit.scheduledAt, { zone: edit.scheduledTimezone }));
+            setScheduledTimezone(edit.scheduledTimezone);
+          } else {
+            setScheduledAt(null);
+            setScheduledTimezone('America/New_York');
+          }
+        } else {
+          setFormData({ name: '', description: '', recipients: '', subject: '', content: '' });
+          setScheduledAt(DateTime.local());
+          setScheduledTimezone('America/New_York');
+        }
       } else {
-        setScheduledAt(null);
-        setScheduledTimezone('America/New_York');
+        // Verification status is no longer valid.
+        const updatedUser = { ...user, isSenderVerified: false };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        toast.error('Your sender verification is no longer valid. Please re-verify.', { id: toastId });
+        navigate('/profile');
       }
-    } else {
-      setFormData({});
-      setScheduledAt(DateTime.local());
-      setScheduledTimezone('America/New_York');
+    } catch (error) {
+      console.error("Failed to check verification status", error);
+      toast.error('Could not verify your sender status. Kindly verify your sender status in the profile section.', { id: toastId });
+      navigate('/profile');
     }
   };
 
@@ -116,6 +253,11 @@ export default function CampaignsPage() {
 
   const handleSubmit = async ({ formData }) => {
     let payload = { ...formData };
+
+    if (typeof payload.recipients === 'string') {
+      payload.recipients = payload.recipients.split(',').map(email => email.trim()).filter(Boolean);
+    }
+    
     if (scheduledAt) {
       payload.scheduledAt = scheduledAt.setZone('utc').toISO();
       payload.scheduledTimezone = scheduledTimezone;
@@ -190,15 +332,30 @@ export default function CampaignsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Campaigns</h1>
           <p className="text-gray-600 mt-1">Manage your email marketing campaigns</p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2"
-          onClick={() => handleOpen(null)}
-        >
-          <Plus className="h-5 w-5" />
-          <span>New Campaign</span>
-        </motion.button>
+        <div className="relative group">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 ${
+              (subscriptionStatus !== 'trial' && subscriptionStatus !== 'active') || subscriptionLoading ? 'opacity-60 cursor-not-allowed' : ''
+            }`}
+            onClick={() => {
+              if (subscriptionStatus === 'trial' || subscriptionStatus === 'active') {
+                handleOpen(null);
+              }
+            }}
+            disabled={subscriptionStatus !== 'trial' && subscriptionStatus !== 'active'}
+            type="button"
+          >
+            <Plus className="h-5 w-5" />
+            <span>New Campaign</span>
+          </motion.button>
+          {(subscriptionStatus !== 'trial' && subscriptionStatus !== 'active') && !subscriptionLoading && (
+            <div className="absolute left-1/2 -bottom-10 -translate-x-1/2 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap shadow-lg">
+              Kindly start your trial to use it.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -322,64 +479,133 @@ export default function CampaignsPage() {
 
       
       {/* Dialogs for New/Edit Campaign and Template */}
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{editing ? 'Edit Campaign' : 'New Campaign'}</DialogTitle>
-        <DialogContent>
-          <Button onClick={() => setTemplateDialogOpen(true)} sx={{ mb: 2 }}>Use Template</Button>
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: '24px', overflow: 'hidden' } }}>
+        <DialogTitle sx={{ bgcolor: 'white', borderBottom: '1px solid #e5e7eb', p: 3 }}>
+          <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#111827' }}>
+            {editing ? '✍️ Edit Campaign' : '✨ Create New Campaign'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Fill out the details below to launch your next campaign.
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3, bgcolor: 'white' }}>
+          <Button
+            fullWidth
+            variant="contained"
+            startIcon={<File />}
+            onClick={() => setTemplateDialogOpen(true)}
+            sx={{
+              mt: 2,
+              mb: 4,
+              py: 1.5,
+              borderRadius: '12px',
+              bgcolor: 'rgba(99, 102, 241, 0.1)',
+              color: '#4f46e5',
+              fontWeight: 'bold',
+              textTransform: 'none',
+              fontSize: '1rem',
+              '&:hover': {
+                bgcolor: 'rgba(99, 102, 241, 0.2)',
+                boxShadow: '0px 4px 20px rgba(99, 102, 241, 0.15)',
+              },
+              boxShadow: 'none',
+            }}
+          >
+            Use a Pre-built Template
+          </Button>
           <Form
+            ref={formRef}
             schema={campaignSchema}
             formData={formData}
             onChange={handleFormChange}
             onSubmit={handleSubmit}
             onError={console.log}
             validator={validator}
-            uiSchema={{
-              scheduledAt: { 'ui:widget': 'hidden' },
-              scheduledTimezone: { 'ui:widget': 'hidden' },
-            }}
+            uiSchema={uiSchema}
+            widgets={widgets}
+            fields={{ TitleField: CustomTitleField }}
           >
-            <LocalizationProvider dateAdapter={AdapterLuxon}>
-              <DateTimePicker
-                label="Scheduled At"
-                value={scheduledAt}
-                onChange={date => {
-                  setScheduledAt(date);
-                  setFormData(prev => ({ ...prev, scheduledAt: date ? date.toISO() : null }));
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <LocalizationProvider dateAdapter={AdapterLuxon}>
+                <DateTimePicker
+                  label="Scheduled At"
+                  value={scheduledAt}
+                  onChange={date => {
+                    setScheduledAt(date);
+                    setFormData(prev => ({ ...prev, scheduledAt: date ? date.toISO() : null }));
+                  }}
+                  timeSteps={{ minutes: 1 }}
+                  renderInput={(params) => <TextField {...params} fullWidth sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      backgroundColor: '#f8fafc',
+                    },
+                  }} />}
+                />
+              </LocalizationProvider>
+              <TextField
+                select
+                label="Time Zone"
+                value={scheduledTimezone}
+                onChange={e => {
+                  setScheduledTimezone(e.target.value);
+                  setFormData(prev => ({ ...prev, scheduledTimezone: e.target.value }));
                 }}
-                timeSteps={{ minutes: 1 }}
-                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-              />
-            </LocalizationProvider>
-            <TextField
-              select
-              label="Time Zone"
-              value={scheduledTimezone}
-              onChange={e => {
-                setScheduledTimezone(e.target.value);
-                setFormData(prev => ({ ...prev, scheduledTimezone: e.target.value }));
-              }}
-              fullWidth
-              margin="normal"
-            >
-              {commonTimeZones.map(tz => (
-                <MenuItem key={tz} value={tz}>{tz}</MenuItem>
-              ))}
-            </TextField>
-            <Button type="submit" variant="contained" sx={{ mt: 2 }}>Save</Button>
+                fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: '#f8fafc',
+                  },
+                }}
+              >
+                {commonTimeZones.map(tz => (
+                  <MenuItem key={tz} value={tz}>{tz}</MenuItem>
+                ))}
+              </TextField>
+            </div>
+            <div style={{ display: 'none' }}>
+              <Button type="submit"></Button>
+            </div>
           </Form>
         </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: '#f9fafb', borderTop: '1px solid #e5e7eb' }}>
+          <Button onClick={() => setOpen(false)} sx={{ color: '#4b5563' }}>Cancel</Button>
+          <Button
+            onClick={() => formRef.current.submit()}
+            variant="contained"
+            startIcon={<Send />}
+            sx={{ borderRadius: '12px', fontWeight: 'bold' }}
+          >
+            {editing ? 'Save Changes' : 'Save Campaign'}
+          </Button>
+        </DialogActions>
       </Dialog>
-      <Dialog open={templateDialogOpen} onClose={() => setTemplateDialogOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Choose a Template</DialogTitle>
-        <DialogContent>
-          {templates.length === 0 && <Typography>No templates found.</Typography>}
-          {templates.map(t => (
-            <Box key={t._id} sx={{ mb: 2, p: 1, border: '1px solid #eee', borderRadius: 1 }}>
-              <Typography variant="subtitle1">{t.name}</Typography>
-              <Typography variant="body2" color="textSecondary">{t.subject}</Typography>
-              <Button size="small" onClick={() => handleUseTemplate(t)}>Use This</Button>
-            </Box>
-          ))}
+      <Dialog open={templateDialogOpen} onClose={() => setTemplateDialogOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: '24px' } }}>
+        <DialogTitle sx={{ bgcolor: 'white', borderBottom: '1px solid #e5e7eb', p: 3 }}>
+          <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#111827' }}>
+            📚 Choose a Template
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Select a template to kick-start your campaign content.
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3, bgcolor: '#f9fafb', mt: 2 }}>
+          <div className="space-y-3">
+            {templates.length === 0 && <Typography className="text-center text-gray-500 py-8">No templates found.</Typography>}
+            {templates.map(t => (
+              <motion.div
+                key={t._id}
+                whileHover={{ scale: 1.02, boxShadow: '0px 8px 25px rgba(0, 0, 0, 0.1)' }}
+                transition={{ duration: 0.2 }}
+                className="bg-white rounded-xl border border-gray-200 p-4 cursor-pointer hover:border-blue-500"
+                onClick={() => handleUseTemplate(t)}
+              >
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#111827' }}>{t.name}</Typography>
+                <Typography variant="body2" color="text.secondary" className="truncate">Subject: {t.subject}</Typography>
+              </motion.div>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     

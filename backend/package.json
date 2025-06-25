@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/client": "^8.1.5",
     "@sendgrid/mail": "^8.1.5",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -20,6 +21,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.2",
     "node-cron": "^4.1.0",
+    "razorpay": "^2.9.6",
     "socket.io": "^4.8.1",
     "yup": "^1.6.1"
   },

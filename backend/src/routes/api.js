@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const subscriptionCheck = require('../middleware/subscription');
 
 // Placeholder: import controllers later
 // const campaignController = require('../controllers/campaignController');
@@ -16,11 +17,20 @@ router.use('/campaigns', require('./campaignRoutes'));
 // Auth routes
 router.use('/auth', require('./authRoutes'));
 
+// Verification routes
+router.use('/verification', auth, subscriptionCheck, require('./verificationRoutes'));
+
+// Subscription routes
+router.use('/subscription', auth, subscriptionCheck, require('./subscriptionRoutes'));
+
+// Payment routes
+router.use('/payment', auth, subscriptionCheck, require('./paymentRoutes'));
+
 // User management (admin only)
-router.use('/users', auth, auth.isAdmin, require('./userRoutes'));
+router.use('/users', auth, subscriptionCheck, auth.isAdmin, require('./userRoutes'));
 
 // Template management (all authenticated users)
-router.use('/templates', auth, require('./templateRoutes'));
+router.use('/templates', auth, subscriptionCheck, require('./templateRoutes'));
 
 // SendGrid webhook
 router.post('/sendgrid/webhook', require('../controllers/sendgridWebhookController'));

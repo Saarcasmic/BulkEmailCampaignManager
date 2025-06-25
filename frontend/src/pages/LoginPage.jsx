@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/home/Header';
 import api from '../api';
+import toast from 'react-hot-toast';
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
@@ -25,9 +26,9 @@ export default function LoginPage() {
       const res = await api.post('/auth/login', data);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
-      navigate('/campaigns');
+      navigate('/profile');
     } catch (err) {
-      alert(err.response?.data?.message || 'Login failed');
+      toast.error(err.response?.data?.message || 'Login failed');
     }
   };
 
@@ -61,8 +62,6 @@ export default function LoginPage() {
           }}
         />
       </div>
-
-      
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -113,10 +112,8 @@ export default function LoginPage() {
                   placeholder="Enter your email"
                   required
                   disabled={isSubmitting}
+                  onBlur={e => { if (errors.email) toast.error(errors.email.message); }}
                 />
-                {errors.email && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-red-500">{errors.email.message}</span>
-                )}
               </div>
             </div>
 
@@ -136,6 +133,7 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                   required
                   disabled={isSubmitting}
+                  onBlur={e => { if (errors.password) toast.error(errors.password.message); }}
                 />
                 <span
                   onClick={() => setShowPassword((v) => !v)}
@@ -143,25 +141,7 @@ export default function LoginPage() {
                 >
                   {showPassword ? <EyeOff className="h-5 w-5 text-black" /> : <Eye className="h-5 w-5 text-black" />}
                 </span>
-                {errors.password && (
-                  <span className="absolute right-12 top-1/2 -translate-y-1/2 text-xs text-red-500">{errors.password.message}</span>
-                )}
               </div>
-            </div>
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  disabled={isSubmitting}
-                />
-                <span className="ml-2 text-sm text-slate-600">Remember me</span>
-              </label>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
-                Forgot password?
-              </a>
             </div>
 
             {/* Sign In Button */}

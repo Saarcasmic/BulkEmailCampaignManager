@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
-import { Dialog, DialogTitle, DialogContent, TextField, Button, Box, Typography } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, TextField, Button, Box, Typography, DialogActions } from '@mui/material';
 import api from '../api';
 
 export default function TemplatesPage() {
@@ -140,39 +140,99 @@ export default function TemplatesPage() {
       </div>
 
       {/* Dialog for Add/Edit Template */}
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{editing ? 'Edit Template' : 'Add Template'}</DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <TextField
-              label="Name"
-              value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              fullWidth
-              margin="normal"
-              required
-            />
-            <TextField
-              label="Subject"
-              value={form.subject}
-              onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
-              fullWidth
-              margin="normal"
-              required
-            />
-            <TextField
-              label="Content"
-              value={form.content}
-              onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
-              fullWidth
-              margin="normal"
-              required
-              multiline
-              minRows={4}
-            />
-            <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>Save</Button>
-          </form>
-        </DialogContent>
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: '24px' } }}>
+        <DialogTitle sx={{ bgcolor: 'white', borderBottom: '1px solid #e5e7eb', p: 3 }}>
+          <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#111827' }}>
+            {editing ? '✍️ Edit Template' : '✨ Create New Template'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Build a reusable email template to save time.
+          </Typography>
+        </DialogTitle>
+        <form onSubmit={handleSubmit}>
+          <DialogContent sx={{ p: 3, bgcolor: 'white' }}>
+            <div className="space-y-6">
+              <div>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#374151', mb: 1 }}>
+                  Template Name
+                </Typography>
+                <TextField
+                  placeholder="📈 Monthly Newsletter"
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  fullWidth
+                  required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      backgroundColor: '#f8fafc',
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2563eb',
+                        borderWidth: '2px',
+                      },
+                    },
+                  }}
+                />
+              </div>
+              <div>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#374151', mb: 1 }}>
+                  Email Subject
+                </Typography>
+                <TextField
+                  placeholder="📰 Your Latest Updates & News"
+                  value={form.subject}
+                  onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
+                  fullWidth
+                  required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      backgroundColor: '#f8fafc',
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2563eb',
+                        borderWidth: '2px',
+                      },
+                    },
+                  }}
+                />
+              </div>
+              <div>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#374151', mb: 1 }}>
+                  HTML Content
+                </Typography>
+                <TextField
+                  placeholder="<h1>Welcome!</h1><p>This is your email content.</p>"
+                  value={form.content}
+                  onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
+                  fullWidth
+                  required
+                  multiline
+                  minRows={8}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      backgroundColor: '#f8fafc',
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2563eb',
+                        borderWidth: '2px',
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </div>
+          </DialogContent>
+          <DialogActions sx={{ p: 2, bgcolor: '#f9fafb', borderTop: '1px solid #e5e7eb' }}>
+            <Button onClick={() => setOpen(false)} sx={{ color: '#4b5563', textTransform: 'none' }}>Cancel</Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ borderRadius: '12px', fontWeight: 'bold', textTransform: 'none' }}
+            >
+              {editing ? 'Save Changes' : 'Save Template'}
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </div>
   );
