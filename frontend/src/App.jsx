@@ -20,6 +20,7 @@ import { SubscriptionProvider } from './components/SubscriptionContext';
 
 const theme = createTheme({
   typography: {
+    
     fontFamily: [
       'Poppins',
       'Inter',
