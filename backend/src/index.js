@@ -1,12 +1,10 @@
-import morgan from 'morgan';
-
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
-
+const morgan = require('morgan');
 
 const app = express();
 const server = http.createServer(app);
