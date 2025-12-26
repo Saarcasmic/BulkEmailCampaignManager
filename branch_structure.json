@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "copilot/fix-login-api-server-error",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "copilot/fix-login-api-server-error": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "copilot/fix-login-api-server-error",
+    "origin"
+  ]
+}
