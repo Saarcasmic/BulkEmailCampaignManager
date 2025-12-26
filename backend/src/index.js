@@ -33,12 +33,6 @@ app.use(cors({
 }));
 app.use(express.json({ type: 'application/json' }));
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-})
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err));
-
 // Socket.IO connection
 io.on('connection', (socket) => {
   console.log('Socket.IO client connected:', socket.id);
@@ -63,6 +57,16 @@ app.get('/ping', (req, res) => {
   res.status(200).send('pong');
 });
 
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Connect to MongoDB and start server only after connection is established
+mongoose.connect(process.env.MONGODB_URI, {
+})
+  .then(() => {
+    console.log('MongoDB connected');
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  });
